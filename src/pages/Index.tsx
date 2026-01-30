@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -19,6 +20,13 @@ const Index = () => {
   const [calcInstallation, setCalcInstallation] = useState('standard');
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<string>('');
+  const [callbackOpen, setCallbackOpen] = useState(false);
+  const [measurementOpen, setMeasurementOpen] = useState(false);
+  const [orderOpen, setOrderOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [portfolioOpen, setPortfolioOpen] = useState(false);
+  const [contactFormData, setContactFormData] = useState({ name: '', phone: '', message: '' });
 
   const calculatePrice = () => {
     const basePrices: Record<string, number> = {
@@ -237,6 +245,67 @@ const Index = () => {
     setCatalogOpen(true);
   };
 
+  const handleCallbackRequest = () => {
+    setCallbackOpen(true);
+  };
+
+  const handleMeasurementRequest = () => {
+    setMeasurementOpen(true);
+  };
+
+  const handleOrderProduct = (product: any) => {
+    setSelectedProduct(product);
+    setOrderOpen(true);
+    setCatalogOpen(false);
+  };
+
+  const handleSubmitCallback = () => {
+    toast.success('Заявка принята!', {
+      description: 'Мы свяжемся с вами в течение 15 минут',
+    });
+    setCallbackOpen(false);
+  };
+
+  const handleSubmitMeasurement = () => {
+    toast.success('Заявка на замер принята!', {
+      description: 'Наш специалист свяжется с вами для согласования времени',
+    });
+    setMeasurementOpen(false);
+  };
+
+  const handleSubmitOrder = () => {
+    toast.success('Заказ оформлен!', {
+      description: 'Менеджер свяжется с вами для уточнения деталей',
+    });
+    setOrderOpen(false);
+    setSelectedProduct(null);
+  };
+
+  const handleSubmitReview = () => {
+    toast.success('Спасибо за отзыв!', {
+      description: 'Ваш отзыв будет опубликован после модерации',
+    });
+    setReviewOpen(false);
+  };
+
+  const handleContactSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success('Сообщение отправлено!', {
+      description: 'Мы свяжемся с вами в ближайшее время',
+    });
+    setContactFormData({ name: '', phone: '', message: '' });
+  };
+
+  const handleShowAllPortfolio = () => {
+    setPortfolioOpen(true);
+  };
+
+  const handleDiscountRequest = () => {
+    toast.success('Промокод отправлен!', {
+      description: 'Проверьте SMS с промокодом на скидку 10%',
+    });
+  };
+
   const portfolio = [
     {
       title: 'Панорамные окна в загородном доме',
@@ -312,7 +381,10 @@ const Index = () => {
               </button>
             ))}
           </div>
-          <Button className="bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90">
+          <Button 
+            className="bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90"
+            onClick={handleCallbackRequest}
+          >
             <Icon name="Phone" size={18} className="mr-2" />
             Заказать звонок
           </Button>
@@ -459,7 +531,12 @@ const Index = () => {
             </div>
 
             <div className="text-center mt-8">
-              <Button size="lg" variant="outline" className="border-2">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-2"
+                onClick={handleShowAllPortfolio}
+              >
                 <Icon name="Image" size={20} className="mr-2" />
                 Показать все работы
               </Button>
@@ -555,7 +632,12 @@ const Index = () => {
                   </div>
                 </div>
 
-                <Button size="lg" className="w-full text-lg py-6" variant="outline">
+                <Button 
+                  size="lg" 
+                  className="w-full text-lg py-6" 
+                  variant="outline"
+                  onClick={handleMeasurementRequest}
+                >
                   <Icon name="Calendar" size={20} className="mr-2" />
                   Записаться на бесплатный замер
                 </Button>
@@ -598,9 +680,14 @@ const Index = () => {
             </div>
 
             <div className="text-center mt-8">
-              <Button size="lg" variant="outline" className="border-2">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-2"
+                onClick={() => setReviewOpen(true)}
+              >
                 <Icon name="MessageSquare" size={20} className="mr-2" />
-                Оставить отзыы
+                Оставить отзыв
               </Button>
             </div>
           </div>
@@ -623,22 +710,50 @@ const Index = () => {
                   <CardDescription>Заполните форму и мы вам перезвоним</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Ваше имя</Label>
-                    <Input id="name" placeholder="Иван Иванов" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Телефон</Label>
-                    <Input id="phone" type="tel" placeholder="+7 (999) 123-45-67" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="message">Сообщение</Label>
-                    <Textarea id="message" placeholder="Опишите вашу задачу..." rows={4} />
-                  </div>
-                  <Button className="w-full bg-gradient-to-r from-primary to-secondary text-white" size="lg">
-                    <Icon name="Send" size={20} className="mr-2" />
-                    Отправить заявку
-                  </Button>
+                  <form onSubmit={handleContactSubmit}>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Ваше имя</Label>
+                        <Input 
+                          id="name" 
+                          placeholder="Иван Иванов"
+                          value={contactFormData.name}
+                          onChange={(e) => setContactFormData({...contactFormData, name: e.target.value})}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Телефон</Label>
+                        <Input 
+                          id="phone" 
+                          type="tel" 
+                          placeholder="+7 (999) 123-45-67"
+                          value={contactFormData.phone}
+                          onChange={(e) => setContactFormData({...contactFormData, phone: e.target.value})}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="message">Сообщение</Label>
+                        <Textarea 
+                          id="message" 
+                          placeholder="Опишите вашу задачу..." 
+                          rows={4}
+                          value={contactFormData.message}
+                          onChange={(e) => setContactFormData({...contactFormData, message: e.target.value})}
+                          required
+                        />
+                      </div>
+                      <Button 
+                        type="submit"
+                        className="w-full bg-gradient-to-r from-primary to-secondary text-white" 
+                        size="lg"
+                      >
+                        <Icon name="Send" size={20} className="mr-2" />
+                        Отправить заявку
+                      </Button>
+                    </div>
+                  </form>
                 </CardContent>
               </Card>
 
@@ -688,7 +803,12 @@ const Index = () => {
                   <CardContent className="pt-6">
                     <h3 className="text-xl font-bold mb-2">Бесплатная консультация</h3>
                     <p className="mb-4 opacity-90">Оставьте заявку прямо сейчас и получите скидку 10%</p>
-                    <Button size="lg" variant="secondary" className="w-full">
+                    <Button 
+                      size="lg" 
+                      variant="secondary" 
+                      className="w-full"
+                      onClick={handleDiscountRequest}
+                    >
                       <Icon name="Gift" size={20} className="mr-2" />
                       Получить скидку
                     </Button>
@@ -738,11 +858,188 @@ const Index = () => {
                       </li>
                     ))}
                   </ul>
-                  <Button className="w-full bg-gradient-to-r from-primary to-secondary text-white" size="sm">
+                  <Button 
+                    className="w-full bg-gradient-to-r from-primary to-secondary text-white" 
+                    size="sm"
+                    onClick={() => handleOrderProduct(item)}
+                  >
                     <Icon name="ShoppingCart" size={16} className="mr-2" />
                     Заказать
                   </Button>
                 </CardContent>
+              </Card>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={callbackOpen} onOpenChange={setCallbackOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Заказать обратный звонок</DialogTitle>
+            <DialogDescription>Оставьте номер телефона и мы перезвоним вам в течение 15 минут</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="callback-name">Ваше имя</Label>
+              <Input id="callback-name" placeholder="Иван Иванов" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="callback-phone">Телефон</Label>
+              <Input id="callback-phone" type="tel" placeholder="+7 (999) 123-45-67" />
+            </div>
+            <Button 
+              className="w-full bg-gradient-to-r from-primary to-secondary text-white" 
+              onClick={handleSubmitCallback}
+            >
+              <Icon name="Phone" size={18} className="mr-2" />
+              Жду звонка
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={measurementOpen} onOpenChange={setMeasurementOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Бесплатный замер</DialogTitle>
+            <DialogDescription>Наш специалист приедет в удобное для вас время и произведёт точные замеры</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="measure-name">Ваше имя</Label>
+              <Input id="measure-name" placeholder="Иван Иванов" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="measure-phone">Телефон</Label>
+              <Input id="measure-phone" type="tel" placeholder="+7 (999) 123-45-67" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="measure-address">Адрес</Label>
+              <Input id="measure-address" placeholder="г. Москва, ул. Примерная, д. 1, кв. 10" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="measure-date">Предпочтительная дата</Label>
+              <Input id="measure-date" type="date" />
+            </div>
+            <Button 
+              className="w-full bg-gradient-to-r from-primary to-secondary text-white" 
+              onClick={handleSubmitMeasurement}
+            >
+              <Icon name="Calendar" size={18} className="mr-2" />
+              Записаться на замер
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={orderOpen} onOpenChange={setOrderOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Оформление заказа</DialogTitle>
+            <DialogDescription>
+              {selectedProduct?.title} — {selectedProduct?.price}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div className="p-4 bg-muted rounded-lg">
+              <h4 className="font-semibold mb-2">Характеристики:</h4>
+              <ul className="space-y-1">
+                {selectedProduct?.specs?.map((spec: string, i: number) => (
+                  <li key={i} className="flex items-center gap-2 text-sm">
+                    <Icon name="Check" className="text-primary" size={16} />
+                    {spec}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="order-name">Ваше имя</Label>
+              <Input id="order-name" placeholder="Иван Иванов" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="order-phone">Телефон</Label>
+              <Input id="order-phone" type="tel" placeholder="+7 (999) 123-45-67" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="order-quantity">Количество</Label>
+              <Input id="order-quantity" type="number" defaultValue="1" min="1" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="order-comment">Комментарий</Label>
+              <Textarea id="order-comment" placeholder="Дополнительные пожелания..." rows={3} />
+            </div>
+            <Button 
+              className="w-full bg-gradient-to-r from-primary to-secondary text-white" 
+              onClick={handleSubmitOrder}
+            >
+              <Icon name="ShoppingCart" size={18} className="mr-2" />
+              Оформить заказ
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={reviewOpen} onOpenChange={setReviewOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Оставить отзыв</DialogTitle>
+            <DialogDescription>Поделитесь своим опытом работы с нами</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="review-name">Ваше имя</Label>
+              <Input id="review-name" placeholder="Иван Иванов" />
+            </div>
+            <div className="space-y-2">
+              <Label>Оценка</Label>
+              <div className="flex gap-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button key={star} className="hover:scale-110 transition-transform">
+                    <Icon name="Star" className="text-yellow-500 fill-yellow-500" size={32} />
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="review-text">Ваш отзыв</Label>
+              <Textarea id="review-text" placeholder="Расскажите о своём опыте..." rows={4} />
+            </div>
+            <Button 
+              className="w-full bg-gradient-to-r from-primary to-secondary text-white" 
+              onClick={handleSubmitReview}
+            >
+              <Icon name="Send" size={18} className="mr-2" />
+              Отправить отзыв
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={portfolioOpen} onOpenChange={setPortfolioOpen}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-3xl font-bold">Все наши работы</DialogTitle>
+            <DialogDescription>Портфолио завершённых проектов</DialogDescription>
+          </DialogHeader>
+          <div className="grid md:grid-cols-3 gap-6 mt-6">
+            {[...portfolio, ...portfolio, ...portfolio].map((project, idx) => (
+              <Card key={idx} className="overflow-hidden hover:shadow-xl transition-all group">
+                <div className="relative overflow-hidden h-64">
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute top-2 right-2">
+                    <Badge className="bg-gradient-to-r from-primary to-secondary text-white">
+                      {project.category}
+                    </Badge>
+                  </div>
+                </div>
+                <CardHeader>
+                  <CardTitle className="text-lg">{project.title}</CardTitle>
+                </CardHeader>
               </Card>
             ))}
           </div>
