@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -16,6 +17,8 @@ const Index = () => {
   const [calcArea, setCalcArea] = useState([10]);
   const [calcMaterial, setCalcMaterial] = useState('pvc');
   const [calcInstallation, setCalcInstallation] = useState('standard');
+  const [catalogOpen, setCatalogOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<string>('');
 
   const calculatePrice = () => {
     const basePrices: Record<string, number> = {
@@ -45,30 +48,194 @@ const Index = () => {
 
   const services = [
     {
+      id: 'windows',
       icon: 'RectangleVertical',
       title: 'Окна',
       description: 'Установка пластиковых, деревянных и алюминиевых окон любой сложности',
       features: ['Энергоэффективность', 'Шумоизоляция', 'Гарантия 10 лет'],
     },
     {
+      id: 'doors',
       icon: 'DoorOpen',
       title: 'Двери',
       description: 'Монтаж входных и межкомнатных дверей с профессиональной отделкой',
       features: ['Надежность', 'Быстрый монтаж', 'Гарантия 5 лет'],
     },
     {
+      id: 'blinds',
       icon: 'Blinds',
       title: 'Жалюзи',
       description: 'Горизонтальные, вертикальные и рулонные жалюзи под любой интерьер',
       features: ['Любые размеры', 'Индивидуальный дизайн', 'Гарантия 3 года'],
     },
     {
+      id: 'sills',
       icon: 'Square',
       title: 'Подоконники',
       description: 'Широкий выбор подоконников из различных материалов с установкой',
       features: ['Влагостойкость', 'Прочность', 'Гарантия 5 лет'],
     },
   ];
+
+  const catalogData: Record<string, Array<{ title: string; price: string; image: string; specs: string[] }>> = {
+    windows: [
+      {
+        title: 'ПВХ окно стандарт',
+        price: 'от 8 500 ₽',
+        image: 'https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?w=600',
+        specs: ['Профиль 60мм', '2 камеры', 'Белый цвет'],
+      },
+      {
+        title: 'ПВХ окно премиум',
+        price: 'от 12 000 ₽',
+        image: 'https://images.unsplash.com/photo-1512314889357-e157c22f938d?w=600',
+        specs: ['Профиль 70мм', '5 камер', 'Энергосберегающее'],
+      },
+      {
+        title: 'Деревянное окно',
+        price: 'от 25 000 ₽',
+        image: 'https://images.unsplash.com/photo-1600585152915-d208bec867a1?w=600',
+        specs: ['Сосна/дуб', 'Экологичное', 'Премиум класс'],
+      },
+      {
+        title: 'Алюминиевое окно',
+        price: 'от 15 000 ₽',
+        image: 'https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=600',
+        specs: ['Прочная рама', 'Панорамное', 'Современный дизайн'],
+      },
+      {
+        title: 'Балконный блок',
+        price: 'от 18 000 ₽',
+        image: 'https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=600',
+        specs: ['Дверь + окно', 'Под ключ', 'Гарантия 10 лет'],
+      },
+      {
+        title: 'Мансардное окно',
+        price: 'от 22 000 ₽',
+        image: 'https://images.unsplash.com/photo-1600573472592-401b489a3cdc?w=600',
+        specs: ['Для крыши', 'Влагостойкое', 'Механизм открывания'],
+      },
+    ],
+    doors: [
+      {
+        title: 'Входная дверь «Стандарт»',
+        price: 'от 18 000 ₽',
+        image: 'https://images.unsplash.com/photo-1499916078039-922301b0eb9b?w=600',
+        specs: ['Сталь 2мм', 'Замок 2 класса', 'МДФ панель'],
+      },
+      {
+        title: 'Входная дверь «Премиум»',
+        price: 'от 35 000 ₽',
+        image: 'https://images.unsplash.com/photo-1534172553416-bc945e8eb00f?w=600',
+        specs: ['Сталь 3мм', 'Замок премиум', 'Шумоизоляция'],
+      },
+      {
+        title: 'Межкомнатная дверь',
+        price: 'от 7 500 ₽',
+        image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600',
+        specs: ['МДФ/массив', 'Скрытая коробка', 'Современный дизайн'],
+      },
+      {
+        title: 'Раздвижная дверь',
+        price: 'от 12 000 ₽',
+        image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600',
+        specs: ['Экономия места', 'Плавный ход', 'Стекло/массив'],
+      },
+      {
+        title: 'Дверь со стеклом',
+        price: 'от 9 500 ₽',
+        image: 'https://images.unsplash.com/photo-1509644851169-2acc08aa25b5?w=600',
+        specs: ['Стеклянные вставки', 'Больше света', 'Элегантный вид'],
+      },
+      {
+        title: 'Дверь в ванную',
+        price: 'от 6 500 ₽',
+        image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=600',
+        specs: ['Влагостойкая', 'Вентиляция', 'Защелка-фиксатор'],
+      },
+    ],
+    blinds: [
+      {
+        title: 'Горизонтальные жалюзи',
+        price: 'от 1 200 ₽/м²',
+        image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=600',
+        specs: ['Алюминий', '16/25мм ламели', 'Любой цвет'],
+      },
+      {
+        title: 'Вертикальные жалюзи',
+        price: 'от 1 500 ₽/м²',
+        image: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=600',
+        specs: ['Ткань/пластик', '89/127мм ламели', 'Для больших окон'],
+      },
+      {
+        title: 'Рулонные шторы',
+        price: 'от 2 000 ₽/м²',
+        image: 'https://images.unsplash.com/photo-1600210491369-e753d80a41f3?w=600',
+        specs: ['Ткань блэкаут', 'Механизм цепочка', 'Полное затемнение'],
+      },
+      {
+        title: 'Римские шторы',
+        price: 'от 2 500 ₽/м²',
+        image: 'https://images.unsplash.com/photo-1600607687644-aac4c3eac7f4?w=600',
+        specs: ['Премиум ткань', 'Складки', 'Элегантный стиль'],
+      },
+      {
+        title: 'Плиссе',
+        price: 'от 3 000 ₽/м²',
+        image: 'https://images.unsplash.com/photo-1600607686527-6fb886090705?w=600',
+        specs: ['Для мансард', 'День-ночь', 'Любая форма окна'],
+      },
+      {
+        title: 'Жалюзи с электроприводом',
+        price: 'от 5 000 ₽/м²',
+        image: 'https://images.unsplash.com/photo-1600573472550-7abdc7df76e5?w=600',
+        specs: ['Умный дом', 'Пульт ДУ', 'Автоматика'],
+      },
+    ],
+    sills: [
+      {
+        title: 'ПВХ подоконник',
+        price: 'от 800 ₽/м',
+        image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600',
+        specs: ['Белый/цветной', 'Влагостойкий', 'Легкий уход'],
+      },
+      {
+        title: 'Мраморный подоконник',
+        price: 'от 4 500 ₽/м',
+        image: 'https://images.unsplash.com/photo-1600566752229-250ed79470dc?w=600',
+        specs: ['Натуральный камень', 'Премиум класс', 'Долговечный'],
+      },
+      {
+        title: 'Деревянный подоконник',
+        price: 'от 2 200 ₽/м',
+        image: 'https://images.unsplash.com/photo-1600585152220-d19781e5e817?w=600',
+        specs: ['Массив дуба/сосны', 'Экологичный', 'Тёплый на ощупь'],
+      },
+      {
+        title: 'Кварцевый подоконник',
+        price: 'от 3 800 ₽/м',
+        image: 'https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=600',
+        specs: ['Искусственный камень', 'Устойчивость', 'Современный вид'],
+      },
+      {
+        title: 'Акриловый подоконник',
+        price: 'от 1 500 ₽/м',
+        image: 'https://images.unsplash.com/photo-1600573472591-62139cc12c64?w=600',
+        specs: ['Глянцевый', 'Легкий', 'Широкая палитра'],
+      },
+      {
+        title: 'Гранитный подоконник',
+        price: 'от 5 500 ₽/м',
+        image: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=600',
+        specs: ['Натуральный гранит', 'Максимальная прочность', 'Престиж'],
+      },
+    ],
+  };
+
+  const openCatalog = (serviceId: string) => {
+    setSelectedService(serviceId);
+    setCatalogOpen(true);
+  };
 
   const portfolio = [
     {
@@ -231,17 +398,18 @@ const Index = () => {
               {services.map((service, idx) => (
                 <Card
                   key={idx}
-                  className="hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-t-4 border-t-transparent hover:border-t-primary"
+                  className="hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-t-4 border-t-transparent hover:border-t-primary cursor-pointer group"
+                  onClick={() => openCatalog(service.id)}
                 >
                   <CardHeader>
-                    <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center mb-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                       <Icon name={service.icon as any} className="text-white" size={32} />
                     </div>
                     <CardTitle className="text-2xl">{service.title}</CardTitle>
                     <CardDescription className="text-base">{service.description}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <ul className="space-y-2">
+                    <ul className="space-y-2 mb-4">
                       {service.features.map((feature, i) => (
                         <li key={i} className="flex items-center gap-2">
                           <Icon name="CheckCircle2" className="text-primary" size={18} />
@@ -249,6 +417,10 @@ const Index = () => {
                         </li>
                       ))}
                     </ul>
+                    <Button className="w-full bg-gradient-to-r from-primary to-secondary text-white" size="sm">
+                      <Icon name="ShoppingBag" size={16} className="mr-2" />
+                      Смотреть каталог
+                    </Button>
                   </CardContent>
                 </Card>
               ))}
@@ -527,6 +699,55 @@ const Index = () => {
           </div>
         </section>
       </main>
+
+      <Dialog open={catalogOpen} onOpenChange={setCatalogOpen}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              Каталог: {services.find((s) => s.id === selectedService)?.title}
+            </DialogTitle>
+            <DialogDescription>
+              Выберите подходящий вариант из нашего ассортимента
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+            {catalogData[selectedService]?.map((item, idx) => (
+              <Card key={idx} className="overflow-hidden hover:shadow-xl transition-all group">
+                <div className="relative h-48 overflow-hidden">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute top-2 right-2">
+                    <Badge className="bg-gradient-to-r from-primary to-secondary text-white">
+                      {item.price}
+                    </Badge>
+                  </div>
+                </div>
+                <CardHeader>
+                  <CardTitle className="text-lg">{item.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-1 mb-4">
+                    {item.specs.map((spec, i) => (
+                      <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Icon name="Check" className="text-primary" size={16} />
+                        {spec}
+                      </li>
+                    ))}
+                  </ul>
+                  <Button className="w-full bg-gradient-to-r from-primary to-secondary text-white" size="sm">
+                    <Icon name="ShoppingCart" size={16} className="mr-2" />
+                    Заказать
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <footer className="bg-foreground text-background py-12">
         <div className="container mx-auto px-4">
